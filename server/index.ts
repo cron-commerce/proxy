@@ -10,6 +10,7 @@ nextApp.prepare().then(() => {
   const app = new Koa()
 
   app.use(async (ctx) => {
+    ctx.type = 'application/liquid'
     await handle(ctx.req, ctx.res)
     ctx.respond = false
   })
