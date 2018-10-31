@@ -15,7 +15,7 @@ nextApp.prepare().then(() => {
   const app = new Koa()
   const router = new Router()
 
-  router.get('/bundle/:subscribablePath', async ctx => {
+  router.get('/bundle/:handle', async ctx => {
     await nextApp.render(ctx.req, ctx.res, '/bundle', {...ctx.query, ...ctx.params})
     ctx.respond = false
   })

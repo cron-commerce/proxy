@@ -1,13 +1,35 @@
+import gql from 'graphql-tag'
 import {NextContext} from 'next'
 import {Component} from 'react'
 import {Query} from 'react-apollo'
 
-export default class BundlePath extends Component<{}> {
+const QUERY = gql`
+  query subscribable($handle: String!) {
+    subscribable(handle: $handle) {
+      id
+    }
+  }
+`
+
+interface Props {
+  handle: string,
+}
+
+export default class BundlePage extends Component<Props> {
   public static getInitialProps(ctx: NextContext) {
-    return {}
+    const {handle} = ctx.query
+    return {handle}
   }
 
   public render() {
-    return <div>bundle</div>
+    console.log(this.props)
+    return <Query query={QUERY} variables={{handle: this.props.handle}}>
+      {({data, loading, error}) => {
+        if (error) { return <div>error</div> }
+        if (loading) { return <div>loading...</div> }
+        console.log(data)
+        return <div>bundle</div>
+      }}
+    </Query>
   }
 }
