@@ -1,3 +1,4 @@
+import 'isomorphic-unfetch'
 import * as Koa from 'koa'
 import * as logger from 'koa-logger'
 import * as Router from 'koa-router'
