@@ -4,19 +4,22 @@ import isProxyRequestFn from '../server/is-proxy-request'
 
 interface Props {
   isProxyRequest: boolean,
+  shopName: string,
 }
 
 export default class Document extends NextDocument<Props> {
-  static async getInitialProps(ctx) {
+  public static async getInitialProps(ctx) {
     const initialProps = await NextDocument.getInitialProps(ctx)
     const isProxyRequest = isProxyRequestFn(ctx.req)
-    return {...initialProps, isProxyRequest}
+    const shopName = ctx.query.shop
+    return {...initialProps, isProxyRequest, shopName}
   }
 
   public render() {
     const Common = () => <>
       <Main />
       <NextScript />
+      <script dangerouslySetInnerHTML={{__html: `shopName = "${this.props.shopName}";`}} />
     </>
 
     if (this.props.isProxyRequest) { return <Common /> }

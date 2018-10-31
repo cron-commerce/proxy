@@ -1,9 +1,9 @@
 import {NextContext} from 'next'
 import {Component} from 'react'
+import {Query} from 'react-apollo'
 
 export default class BundlePath extends Component<{}> {
   public static getInitialProps(ctx: NextContext) {
-    console.log(ctx.query)
     return {}
   }
 
