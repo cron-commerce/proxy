@@ -1,3 +1,4 @@
+import {Field, FieldArray, Form, Formik} from 'formik'
 import gql from 'graphql-tag'
 import {NextContext} from 'next'
 import {Component} from 'react'
@@ -32,6 +33,15 @@ interface Props {
   handle: string,
 }
 
+interface FormValues {
+  freqNum: string,
+  freqUnit: string,
+  sizeId: number,
+  variants: object[],
+}
+
+const freqUnits = ['days', 'weeks', 'months']
+
 export default class BundlePage extends Component<Props> {
   public static getInitialProps(ctx: NextContext) {
     const {handle} = ctx.query
@@ -43,40 +53,65 @@ export default class BundlePage extends Component<Props> {
       {({data, loading, error}) => {
         if (error) { return <div>error</div> }
         if (loading) { return <div>loading...</div> }
-        console.log(data.subscribable)
 
         return <div>
           <h1>Bundle Builder</h1>
 
-          <h2>Select your frequency</h2>
-          <input type='number' name='freqNum' />
-          <select name='freqUnit'>
-            {['days', 'weeks', 'months'].map(unit => <option key={unit} value={unit}>{unit}</option>)}
-          </select>
+          <Formik
+            initialValues={{
+              freqNum: '',
+              freqUnit: freqUnits[0],
+              size: data.subscribable.sizes[0],
+              variants: [],
+            }}
+            onSubmit={this.handleSubmit}
+            render={({handleChange, values}) => <Form>
+              <h2>Select your frequency</h2>
+              <Field name='freqNum' type='number' />
 
-          <h2>Select your size</h2>
-          <select name='size'>
-            {data.subscribable.sizes.map(size => <option key={size.id} value={size.numVariants}>
-              {size.numVariants} for {size.price}
-            </option>)}
-          </select>
-
-          <h2>Select your variants</h2>
-          {data.subscribable.products.map(product => <div key={product.id}>
-            <h4>{product.shopifyProduct.title}</h4>
-            {product.shopifyProduct.variants.map(variant => <div key={variant.id}>
-              <span>{variant.title}</span>
-              <select>
-                {new Array(13).fill(undefined).map((_, i) => <option key={i} value={i}>{i}</option>)}
+              <select name='freqUnit' onChange={handleChange} value={values.freqUnit}>
+                {freqUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
               </select>
-            </div>)}
-          </div>)}
 
-          <div>
-            <button type='submit'>Add to cart</button>
-          </div>
+              <h2>Select your size</h2>
+              <select name='size' onChange={handleChange} value={values.size.id}>
+                {data.subscribable.sizes.map(size => <option key={size.id} value={size}>
+                  {size.numVariants} for {size.price}
+                </option>)}
+              </select>
+
+              <FieldArray
+                name='variants'
+                render={({remove, push}) => <div>
+                  <h2>Select your variants</h2>
+                  {data.subscribable.products.map(product => <div key={product.id}>
+                    <h4>{product.shopifyProduct.title}</h4>
+                    {product.shopifyProduct.variants.map(variant => <div key={variant.id}>
+                      <span>{variant.title}</span>
+                      <button onClick={() => push(variant)} type='button'>Add</button>
+                    </div>)}
+                  </div>)}
+
+                  <h3>Selected variants</h3>
+                  {values.variants.map((variant, i) => <span key={i}>
+                    {variant.title} <button onClick={() => remove(i)} type='button'>Rem</button>
+                  </span>)}
+                </div>}
+              />
+
+              <div>
+                <button type='submit'>Add to cart</button>
+              </div>
+            </Form>}
+          />
         </div>
       }}
     </Query>
+  }
+
+  private handleSubmit = (input) => {
+    console.log(input)
+    // TODO: validate
+    // TODO: add to cart
   }
 }
