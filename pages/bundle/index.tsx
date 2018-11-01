@@ -22,12 +22,10 @@ export default class BundlePage extends Component<Props> {
   }
 
   public render() {
-    console.log(this.props)
     return <Query query={QUERY} variables={{handle: this.props.handle}}>
       {({data, loading, error}) => {
         if (error) { return <div>error</div> }
         if (loading) { return <div>loading...</div> }
-        console.log(data)
         return <div>bundle</div>
       }}
     </Query>
